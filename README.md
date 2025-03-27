@@ -2,6 +2,7 @@
   <img src="thumbnail.png" alt="App Preview" width="300"/>
 </p>
 
+[Watch the app preview](screen.mov)
 
 
 # Weather-app
