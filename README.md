@@ -1,5 +1,7 @@
-![App Preview](thumbnail.png)
-<video src="weather-app.mp4" width="500" controls></video>
+<p align="center">
+  <img src="thumbnail.png" alt="App Preview" width="300"/>
+</p>
+
 
 
 # Weather-app
