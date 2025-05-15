@@ -6,8 +6,21 @@
 //
 
 import SwiftUI
+import CoreLocation
+
 
 struct ContentView: View {
+    var locationString: String {
+        guard let location = locationManager.location else { return "Unknown" }
+        return "\(location.latitude),\(location.longitude)"
+    }
+
+    @ObservedObject private var locationManager = LocationManager()
+    private let weatherService = WeatherService()
+
+    @State private var city: String = "Loading..."
+    @State private var temperature: Int = 0
+
     @State private var isNightModeOn = false
     var body: some View {
         //        VStack {
@@ -17,11 +30,10 @@ struct ContentView: View {
         //            Text("Hello, world!")
         //        }
         ZStack{
-            backgroundView(color1: isNightModeOn ? .black: .blue, color2: isNightModeOn ? .gray:Color("lightblue"))
+            backgroundView(isNightModeOn: $isNightModeOn)
             VStack{
-                cityTextView(cityName: "Cupertino,CA")
-                mainWeatherView(imageName: isNightModeOn ? "moon.stars.fill":"cloud.sun.fill",temp:76)
-                .padding(.bottom,110)
+                cityTextView(cityName: city)
+                mainWeatherView(imageName: isNightModeOn ? "moon.stars.fill":"cloud.sun.fill", temp: temperature)
                 HStack(spacing:20){
                     
                     weatherDayView(dayOfTheWeek: "TUE", imageName: "cloud.sun.fill", temperature: 74)
@@ -41,6 +53,18 @@ struct ContentView: View {
                 }
                 Spacer()
             }
+            .onChange(of: locationString) {
+                guard let location = locationManager.location else { return }
+                weatherService.getWeather(lat: location.latitude, lon: location.longitude) { weather in
+                    if let weather = weather {
+                        self.city = weather.name
+                        self.temperature = Int(weather.main.temp)
+                    }
+                }
+            }
+
+
+
         }
         
     }
@@ -69,11 +93,10 @@ struct weatherDayView: View {
 }
 
 struct backgroundView: View {
-    var color1: Color
-    var color2: Color
+    @Binding var isNightModeOn : Bool
     var body : some View{
         LinearGradient(gradient:
-                        Gradient(colors: [color1,color2]),
+                        Gradient(colors: [isNightModeOn ? .black : .blue,isNightModeOn ? .gray: Color("lightBlue")]),
                         startPoint:.topLeading,
                         endPoint:.bottomTrailing)
                         .edgesIgnoringSafeArea(.all)
